@@ -251,6 +251,8 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
     }
 }
 
+
+
 - (void)closeWebView {
     if (self.webview != nil) {
         [self.webview stopLoading];
@@ -381,35 +383,34 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
   }
 }
 
+
 #pragma mark -- WkWebView Delegate
-- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
-    decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
 
     BOOL isInvalid = [self checkInvalidUrl: navigationAction.request.URL];
-    
-    id data = @{@"url": navigationAction.request.URL.absoluteString,
-                @"type": isInvalid ? @"abortLoad" : @"shouldStart",
-                @"navigationType": [NSNumber numberWithInteger:navigationAction.navigationType]};
-    [channel invokeMethod:@"onState" arguments:data];
-
+    NSURL *url = navigationAction.request.URL;
     if (navigationAction.navigationType == WKNavigationTypeBackForward) {
         [channel invokeMethod:@"onBackPressed" arguments:nil];
+        decisionHandler(WKNavigationActionPolicyAllow);
     } else if (!isInvalid) {
         id data = @{@"url": navigationAction.request.URL.absoluteString};
         [channel invokeMethod:@"onUrlChanged" arguments:data];
-    }
-
-    if (_enableAppScheme ||
-        ([webView.URL.scheme isEqualToString:@"http"] ||
-         [webView.URL.scheme isEqualToString:@"https"] ||
-         [webView.URL.scheme isEqualToString:@"about"] ||
-         [webView.URL.scheme isEqualToString:@"file"])) {
-         if (isInvalid) {
-            decisionHandler(WKNavigationActionPolicyCancel);
-         } else {
-            decisionHandler(WKNavigationActionPolicyAllow);
-         }
-    } else {
+        decisionHandler(WKNavigationActionPolicyAllow);
+    } else  if ([url.scheme isEqualToString:@"http"] || [url.scheme isEqualToString:@"https"]) {
+        // 继续加载请求
+        decisionHandler(WKNavigationActionPolicyAllow);
+    } else if ([url.scheme rangeOfString:@"alipayHk"].location != NSNotFound){
+        // 处理打开外部应用的逻辑
+        NSURL *appUrl = [NSURL URLWithString:@"alipayHk://path?query"];
+        if ([[UIApplication sharedApplication] canOpenURL:appUrl]) {
+            [[UIApplication sharedApplication] openURL:appUrl];
+        }
+        decisionHandler(WKNavigationActionPolicyCancel);
+    }else {
+        id data = @{@"url": navigationAction.request.URL.absoluteString,
+                    @"type": @"abortLoad",
+                    @"navigationType": [NSNumber numberWithInteger:navigationAction.navigationType]};
+        [channel invokeMethod:@"onState" arguments:data];
         decisionHandler(WKNavigationActionPolicyCancel);
     }
 }
