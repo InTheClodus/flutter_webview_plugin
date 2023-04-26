@@ -399,9 +399,9 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
     } else  if ([url.scheme isEqualToString:@"http"] || [url.scheme isEqualToString:@"https"]) {
         // 继续加载请求
         decisionHandler(WKNavigationActionPolicyAllow);
-    } else if ([url.scheme rangeOfString:@"alipayHk"].location != NSNotFound){
+    } else if ([url.scheme rangeOfString:@"alipay"].location != NSNotFound){
         // 处理打开外部应用的逻辑
-        NSURL *appUrl = [NSURL URLWithString:@"alipayHk://path?query"];
+        NSURL *appUrl = [NSURL URLWithString:url.absoluteString];
         if ([[UIApplication sharedApplication] canOpenURL:appUrl]) {
             [[UIApplication sharedApplication] openURL:appUrl];
         }
