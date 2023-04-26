@@ -386,26 +386,23 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
 
 #pragma mark -- WkWebView Delegate
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
-
+    
     BOOL isInvalid = [self checkInvalidUrl: navigationAction.request.URL];
-    NSURL *url = navigationAction.request.URL;
-    if (navigationAction.navigationType == WKNavigationTypeBackForward) {
+    NSURL *URL = navigationAction.request.URL;
+    NSString * urlStr = [[URL absoluteString] stringByRemovingPercentEncoding];
+    NSLog(@"Hello111111, %@!", urlStr);
+     
+    if ([urlStr rangeOfString:@"alipayhk://platformapi"].location != NSNotFound){
+        [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
+        NSLog(@"Hello, %@!", urlStr);
+        decisionHandler(WKNavigationActionPolicyCancel);
+    }else if (navigationAction.navigationType == WKNavigationTypeBackForward) {
         [channel invokeMethod:@"onBackPressed" arguments:nil];
         decisionHandler(WKNavigationActionPolicyAllow);
     } else if (!isInvalid) {
         id data = @{@"url": navigationAction.request.URL.absoluteString};
         [channel invokeMethod:@"onUrlChanged" arguments:data];
         decisionHandler(WKNavigationActionPolicyAllow);
-    } else  if ([url.scheme isEqualToString:@"http"] || [url.scheme isEqualToString:@"https"]) {
-        // 继续加载请求
-        decisionHandler(WKNavigationActionPolicyAllow);
-    } else if ([url.scheme rangeOfString:@"alipay"].location != NSNotFound){
-        // 处理打开外部应用的逻辑
-        NSURL *appUrl = [NSURL URLWithString:url.absoluteString];
-        if ([[UIApplication sharedApplication] canOpenURL:appUrl]) {
-            [[UIApplication sharedApplication] openURL:appUrl];
-        }
-        decisionHandler(WKNavigationActionPolicyCancel);
     }else {
         id data = @{@"url": navigationAction.request.URL.absoluteString,
                     @"type": @"abortLoad",

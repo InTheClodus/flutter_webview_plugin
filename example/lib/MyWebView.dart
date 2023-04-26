@@ -27,6 +27,7 @@ class _MyWebViewState extends State<MyWebView> {
 
     /// 监听链接变化
     flutterWebviewPlugin.onUrlChanged.listen((event) {
+      print(event);
       if (event.contains("PaySuccess")) {
         payStatus = "9000";
       }
@@ -70,7 +71,7 @@ class _MyWebViewState extends State<MyWebView> {
       child: WebviewScaffold(
         headers: {"referer": "https://sinoexpress.ttechworld.com/"},
         appBar: appBar(),
-        url: "https://api.yedpay.com/online-payment/checkout/CQDOFjevr4-5nhHX2iwpqAAe3EiBuDCguhUdmz7a7iw/zh",
+        url: "https://api.yedpay.com/online-payment/details/22Ia7Se2zaJLnXZB1fVq7qWZnLv52Rfn46Zhkz461Jw/zh",
         withJavascript: true,
         withLocalStorage: true,
         // hidden: true,
