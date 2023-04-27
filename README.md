@@ -23,7 +23,7 @@ eval() function only supports SDK of 19 or greater for evaluating Javascript.
 ## Getting Started
 
 For help getting started with Flutter, view our online [documentation](http://flutter.io/).
-
+// if ([url hasPrefix:@"http:"] || [url hasPrefix:@"https:"])
 #### iOS
 
 In order for plugin to work correctly, you need to add new key to `ios/Runner/Info.plist`
