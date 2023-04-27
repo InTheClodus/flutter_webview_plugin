@@ -392,7 +392,7 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
     NSString * urlStr = [[URL absoluteString] stringByRemovingPercentEncoding];
     NSLog(@"Hello111111, %@!", urlStr);
     
-    if ([urlStr rangeOfString:@"alipayhk://platformapi"].location != NSNotFound||[urlStr rangeOfString:@"weixin://wap/pay"].location != NSNotFound){
+    if ([urlStr rangeOfString:@"alipayhk://platformapi"].location != NSNotFound || [urlStr rangeOfString:@"weixin://wap/pay"].location != NSNotFound){
         [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
         NSLog(@"Hello, %@!", urlStr);
         decisionHandler(WKNavigationActionPolicyCancel);
