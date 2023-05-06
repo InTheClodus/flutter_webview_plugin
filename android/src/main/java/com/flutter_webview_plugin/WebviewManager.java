@@ -27,6 +27,7 @@ import androidx.core.content.FileProvider;
 
 import android.database.Cursor;
 import android.provider.OpenableColumns;
+import android.widget.Toast;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -185,6 +186,7 @@ class WebviewManager {
                 }
                 try {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     activity.startActivity(intent);
                 } catch (Exception e) {
                     Log.e("WebViewManager", " Exception is ==== >>> " + e);
