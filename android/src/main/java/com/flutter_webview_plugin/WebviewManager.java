@@ -8,6 +8,7 @@ import android.content.Context;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -27,8 +28,6 @@ import androidx.core.content.FileProvider;
 
 import android.database.Cursor;
 import android.provider.OpenableColumns;
-import android.widget.Toast;
-
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,10 +36,8 @@ import java.io.File;
 import java.util.Date;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
-
 import static android.app.Activity.RESULT_OK;
 
 /**
@@ -54,7 +51,7 @@ class WebviewManager {
     private final static int FILECHOOSER_RESULTCODE = 1;
     private Uri fileUri;
     private Uri videoUri;
-
+    private static final String TAG = "WebviewManager";
     private long getFileSize(Uri fileUri) {
         Cursor returnCursor = context.getContentResolver().query(fileUri, null, null, null, null);
         returnCursor.moveToFirst();
@@ -146,23 +143,19 @@ class WebviewManager {
                 }
             }
         };
-        webView.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    switch (keyCode) {
-                        case KeyEvent.KEYCODE_BACK:
-                            if (webView.canGoBack()) {
-                                webView.goBack();
-                            } else {
-                                FlutterWebviewPlugin.channel.invokeMethod("onBack", null);
-                            }
-                            return true;
+        webView.setOnKeyListener((v, keyCode, event) -> {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    if (webView.canGoBack()) {
+                        webView.goBack();
+                    } else {
+                        FlutterWebviewPlugin.channel.invokeMethod("onBack", null);
                     }
+                    return true;
                 }
-
-                return false;
             }
+
+            return false;
         });
 
         ((ObservableWebView) webView).setOnScrollChangedCallback(new ObservableWebView.OnScrollChangedCallback() {
@@ -188,6 +181,7 @@ class WebviewManager {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     activity.startActivity(intent);
+                    Log.d(TAG,String.valueOf(url));
                 } catch (Exception e) {
                     Log.e("WebViewManager", " Exception is ==== >>> " + e);
                 }
@@ -357,11 +351,8 @@ class WebviewManager {
 
     private void clearCookies() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            CookieManager.getInstance().removeAllCookies(new ValueCallback<Boolean>() {
-                @Override
-                public void onReceiveValue(Boolean aBoolean) {
+            CookieManager.getInstance().removeAllCookies(aBoolean -> {
 
-                }
             });
         } else {
             CookieManager.getInstance().removeAllCookie();
@@ -498,12 +489,7 @@ class WebviewManager {
     void eval(MethodCall call, final MethodChannel.Result result) {
         String code = call.argument("code");
 
-        webView.evaluateJavascript(code, new ValueCallback<String>() {
-            @Override
-            public void onReceiveValue(String value) {
-                result.success(value);
-            }
-        });
+        webView.evaluateJavascript(code, result::success);
     }
 
     /**
