@@ -21,7 +21,7 @@ public class BrowserClient extends WebViewClient {
     private Pattern invalidUrlPattern = null;
 
     public BrowserClient() {
-        this(null);
+
     }
 
     public BrowserClient(String invalidUrlRegex) {
