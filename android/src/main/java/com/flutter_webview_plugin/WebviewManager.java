@@ -28,6 +28,7 @@ import androidx.core.content.FileProvider;
 
 import android.database.Cursor;
 import android.provider.OpenableColumns;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,8 +37,10 @@ import java.io.File;
 import java.util.Date;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
+
 import static android.app.Activity.RESULT_OK;
 
 /**
@@ -52,6 +55,7 @@ class WebviewManager {
     private Uri fileUri;
     private Uri videoUri;
     private static final String TAG = "WebviewManager";
+
     private long getFileSize(Uri fileUri) {
         Cursor returnCursor = context.getContentResolver().query(fileUri, null, null, null, null);
         returnCursor.moveToFirst();
@@ -136,27 +140,14 @@ class WebviewManager {
         webViewClient = new BrowserClient() {
             @Override
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-                if (ignoreSSLErrors){
+                if (ignoreSSLErrors) {
                     handler.proceed();
-                }else {
+                } else {
                     super.onReceivedSslError(view, handler, error);
                 }
             }
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (url.contains("alipayhk://platformapi") || url.contains("weixin://wap/pay") || url.contains("alipay://")) {
-                    try {
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        activity.startActivity(intent);
-                        Log.d(TAG, url);
-                    } catch (Exception e) {
-                        Log.e("WebViewManager", " Exception is ==== >>> " + e);
-                    }
-                    return true;
-                }
-                return false;
-            }
+
+
         };
         webView.setOnKeyListener((v, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
@@ -186,25 +177,32 @@ class WebviewManager {
 
         webView.setWebViewClient(webViewClient);
         //该方法支持支付宝和微信支付
-//        webView.setWebViewClient(new WebViewClient() {
-//            @Override
-//            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-//                if (url.startsWith("http:") || url.startsWith("https:")) {
-//                    return false;
-//                }
-//                try {
-//                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    activity.startActivity(intent);
-//                    Log.d(TAG, url);
-//                } catch (Exception e) {
-//                    Log.e("WebViewManager", " Exception is ==== >>> " + e);
-//                }
-//                return true;
-//            }
-//        }
-//        );
-
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+                if (ignoreSSLErrors) {
+                    handler.proceed();
+                } else {
+                    super.onReceivedSslError(view, handler, error);
+                }
+            }
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url.contains("alipayhk://platformapi") || url.contains("weixin://wap/pay") || url.contains("alipay://")) {
+                    try {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        activity.startActivity(intent);
+                        Log.d(TAG, url);
+                    } catch (Exception e) {
+                        Log.e("WebViewManager", " Exception is ==== >>> " + e);
+                    }
+                    return true;
+                }
+                return false;
+            }
+            }
+        );
         webView.setWebChromeClient(new WebChromeClient() {
             //The undocumented magic method override
             //Eclipse will swear at you if you try to put @Override here
@@ -556,7 +554,7 @@ class WebviewManager {
     /**
      * Clears cache
      */
-    void cleanCache(){
+    void cleanCache() {
         webView.clearCache(true);
     }
 
