@@ -142,6 +142,21 @@ class WebviewManager {
                     super.onReceivedSslError(view, handler, error);
                 }
             }
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url.contains("alipayhk://platformapi") || url.contains("weixin://wap/pay") || url.contains("alipay://")) {
+                    try {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        activity.startActivity(intent);
+                        Log.d(TAG, url);
+                    } catch (Exception e) {
+                        Log.e("WebViewManager", " Exception is ==== >>> " + e);
+                    }
+                    return true;
+                }
+                return false;
+            }
         };
         webView.setOnKeyListener((v, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
@@ -171,23 +186,6 @@ class WebviewManager {
 
         webView.setWebViewClient(webViewClient);
         //该方法支持支付宝和微信支付
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (url.contains("alipayhk://platformapi") || url.contains("weixin://wap/pay") || url.contains("alipay://")) {
-                    try {
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        activity.startActivity(intent);
-                        Log.d(TAG, url);
-                    } catch (Exception e) {
-                        Log.e("WebViewManager", " Exception is ==== >>> " + e);
-                    }
-                    return true;
-                }
-                return false;
-            }
-        });
 //        webView.setWebViewClient(new WebViewClient() {
 //            @Override
 //            public boolean shouldOverrideUrlLoading(WebView view, String url) {
