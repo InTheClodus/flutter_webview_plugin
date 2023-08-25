@@ -4,6 +4,7 @@ version '1.0-SNAPSHOT'
 def ANDROIDX_WARNING = "flutterPluginsAndroidXWarning";
 
 buildscript {
+    ext.kotlin_version = '1.7.10'
     repositories {
 //        google()
 //        mavenCentral()
@@ -32,7 +33,7 @@ allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 33
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -69,6 +70,6 @@ dependencies {
     if(System.getProperty('flutterPath')) {
         testImplementation files(System.getProperty('flutterPath') + '/bin/cache/artifacts/engine/android-x64/flutter.jar')
     }
-
-    testImplementation 'org.mockito:mockito-inline:5.0.0'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation 'org.mockito:mockito-core:5.0.0'
 }

@@ -69,9 +69,9 @@ class _MyWebViewState extends State<MyWebView> {
     mContext = context;
     return WillPopScope(
       child: WebviewScaffold(
-        headers: {"referer": "https://sinoexpress.ttechworld.com/"},
+
         appBar: appBar(),
-        url: "https://api.yedpay.com/online-payment/details/eCIdWRQweUNekkrhG3sDnvR7RLIQ_35H4N70gWobZeA/zh",
+        url: "https://flutter.cn/",
         withJavascript: true,
         withLocalStorage: true,
         // hidden: true,
